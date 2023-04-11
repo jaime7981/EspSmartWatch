@@ -1,0 +1,6 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/project/components/arduino-esp32",
+    "files.associations": {
+        "gpio.h": "c"
+    }
+}

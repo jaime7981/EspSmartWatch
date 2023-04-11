@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  espressif:
+    image: espressif/idf:release-v4.4
+    volumes:
+      - ./project:/project
+    ports:
+      - "4321:4321"
+    stdin_open: true
+    tty: true
