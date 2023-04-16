@@ -19,13 +19,11 @@ int selector = 0;
 bool led_on = false;
 
 struct RotaryEncoderValues {
-    int a_status;
-    int b_status;
     int a_last_status;
     int b_last_status;
 };
 
-struct RotaryEncoderValues rotary_encoder_values = {0, 0, 0, 0};
+struct RotaryEncoderValues rotary_encoder_values = {0, 0};
 
 void trigger_action(int selector) {
     switch(selector) {
@@ -91,27 +89,21 @@ bool is_button_debounced(gpio_num_t debounce_pin) {
     return false;
 }
 
-void encoder_status() {
-    // critical section
-    rotary_encoder_values.a_status = gpio_get_level(ROTARY_ENCODER_A);
-    rotary_encoder_values.b_status = gpio_get_level(ROTARY_ENCODER_B);
-
-    if (rotary_encoder_values.a_last_status == rotary_encoder_values.a_status && rotary_encoder_values.b_last_status == rotary_encoder_values.b_status) {
+void encoder_status(int rot_a, int rot_b) {
+    if (rotary_encoder_values.a_last_status == rot_a && rotary_encoder_values.b_last_status == rot_b) {
         return ;
     }
 
-    if ((rotary_encoder_values.a_status == 0 && rotary_encoder_values.a_last_status == 1) && rotary_encoder_values.b_status == 1) {
+    if ((rot_a == 0 && rotary_encoder_values.a_last_status == 1) && rot_b == 1) {
         printf("clockwise status a\n");
     }
-    else if ((rotary_encoder_values.a_status == 0 && rotary_encoder_values.a_last_status == 1) && rotary_encoder_values.b_status == 0) {
+    else if ((rot_a == 0 && rotary_encoder_values.a_last_status == 1) && rot_b == 0) {
         printf("anti clockwise status a\n");
     }
     
     // critical section
-    rotary_encoder_values.a_last_status = rotary_encoder_values.a_status;
-    rotary_encoder_values.b_last_status = rotary_encoder_values.b_status;
-
-    return ;
+    rotary_encoder_values.a_last_status = rot_a;
+    rotary_encoder_values.b_last_status = rot_b;
 }
 
 static void IRAM_ATTR gpio_interrupt_handler(void *args)
@@ -130,7 +122,7 @@ void rotary_encoder_task(void *params)
             //printf("\nGPIO %d was pressed %d times. The state is %d\n", pinNumber, count++, gpio_get_level(ROTARY_ENCODER_A));
             //printf("debounced encoder A: %d\n", gpio_get_level(ROTARY_ENCODER_A));
             //printf("debounced encoder B: %d\n", gpio_get_level(ROTARY_ENCODER_B));
-            encoder_status();
+            encoder_status(gpio_get_level(ROTARY_ENCODER_A), gpio_get_level(ROTARY_ENCODER_B));
         }
     }
 }
