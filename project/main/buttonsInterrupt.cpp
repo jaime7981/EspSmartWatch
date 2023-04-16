@@ -57,6 +57,12 @@ void draw_random_circles(TFT_eSPI &tft) {
     }
 }
 
+static void IRAM_ATTR gpio_interrupt_handler(void *args)
+{
+    int pinNumber = (int)args;
+    xQueueSendFromISR(interputQueue, &pinNumber, NULL);
+}
+
 void change_led_status() {
     if (led_on) {
         gpio_set_level(LED_PIN, 0);
@@ -68,64 +74,26 @@ void change_led_status() {
     }
 }
 
-// uint8_t
-void button_press_and_action(gpio_num_t debounce_pin) {
-    static uint16_t btndbc = 0, lastb = 0;
-    
-    btndbc=(btndbc<<1) | gpio_get_level(debounce_pin) | 0xe000;
-
-    if (btndbc!=lastb) {
-        // printf("btndbc: %d / hex: %d\n" ,btndbc,HEX);
-    }
-    lastb = btndbc;
-
-    if (btndbc==0xf000) {
-        // draw_random_circles(tft);
-        printf("debounced action\n");
-    }
-}
-
-bool is_button_debounced(gpio_num_t debounce_pin) {
-    static uint16_t btndbc = 0, lastb = 0;
-    
-    btndbc=(btndbc<<1) | gpio_get_level(debounce_pin) | 0xe000;
-
-    if (btndbc!=lastb) {
-        // printf("btndbc: %d / hex: %d\n" ,btndbc,HEX);
-    }
-    lastb = btndbc;
-
-    if (btndbc==0xf000) {
-        printf("debounced action\n");
-        return true;
-    }
-    return false;
-}
-
-static void IRAM_ATTR gpio_interrupt_handler(void *args)
-{
-    int pinNumber = (int)args;
-    xQueueSendFromISR(interputQueue, &pinNumber, NULL);
-}
-
-void rotary_encoder_task(void *params)
+void LED_Control_Task(void *params)
 {
     int pinNumber, count = 0;
     while (true)
     {
         if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
         {
-            printf("\nGPIO %d was pressed %d times. The state is %d\n", pinNumber, count++, gpio_get_level(ROTARY_ENCODER_A));
-            printf("debounced encoder A: %d\n", gpio_get_level(ROTARY_ENCODER_A));
-            printf("debounced encoder B: %d\n", gpio_get_level(ROTARY_ENCODER_B));
+            if (pinNumber == 12) {
+                // trigger_action(selector);
+                change_led_status();
+                printf("unbounced button\n");
+            }
+            else {
+                printf("GPIO %d was pressed %d times. The state is %d\n", pinNumber, count++, gpio_get_level(ROTARY_ENCODER_A));
+            }
         }
     }
 }
 
-void load_gpio() {
-    // Led Test
-    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
-
+void load_interrupts() {
     // Push Button Primary Setup
     gpio_pad_select_gpio(BUTTON_PRIMARY_PIN);
     gpio_set_direction(BUTTON_PRIMARY_PIN, GPIO_MODE_INPUT);
@@ -147,10 +115,12 @@ void load_gpio() {
     gpio_pullup_en(ROTARY_ENCODER_B);
     gpio_set_intr_type(ROTARY_ENCODER_B, GPIO_INTR_ANYEDGE);
 
+    // Setup Interrrupts
     interputQueue = xQueueCreate(10, sizeof(int));
-    xTaskCreate(rotary_encoder_task, "LED_Control_Task", 2048, NULL, 1, NULL);
+    xTaskCreate(LED_Control_Task, "LED_Control_Task", 2048, NULL, 1, NULL);
 
     gpio_install_isr_service(0);
+    gpio_isr_handler_add(BUTTON_PRIMARY_PIN, gpio_interrupt_handler, (void *)BUTTON_PRIMARY_PIN);
     gpio_isr_handler_add(ROTARY_ENCODER_A, gpio_interrupt_handler, (void *)ROTARY_ENCODER_A);
     gpio_isr_handler_add(ROTARY_ENCODER_B, gpio_interrupt_handler, (void *)ROTARY_ENCODER_B);
 }
@@ -159,15 +129,8 @@ extern "C" void app_main()
 {
     tft.init();
     tft.setRotation(1);
-    tft.fillScreen(TFT_BLACK);
 
-    load_gpio();
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
 
-    while (1) {
-        // button_press_and_action(BUTTON_PRIMARY_PIN);
-        if (is_button_debounced(BUTTON_PRIMARY_PIN)) {
-            draw_random_circles(tft);
-        }
-        vTaskDelay(1);
-    }
+    load_interrupts();
 }
