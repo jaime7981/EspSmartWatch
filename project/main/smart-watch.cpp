@@ -12,14 +12,20 @@
 #define ROTARY_ENCODER_A GPIO_NUM_25
 #define ROTARY_ENCODER_B GPIO_NUM_26
 
-
 TFT_eSPI tft = TFT_eSPI();
-
-int state = 0;
 xQueueHandle interputQueue;
 
 int selector = 0;
 bool led_on = false;
+
+struct RotaryEncoderValues {
+    int a_status;
+    int b_status;
+    int a_last_status;
+    int b_last_status;
+};
+
+struct RotaryEncoderValues rotary_encoder_values = {0, 0, 0, 0};
 
 void trigger_action(int selector) {
     switch(selector) {
@@ -68,23 +74,6 @@ void change_led_status() {
     }
 }
 
-// uint8_t
-void button_press_and_action(gpio_num_t debounce_pin) {
-    static uint16_t btndbc = 0, lastb = 0;
-    
-    btndbc=(btndbc<<1) | gpio_get_level(debounce_pin) | 0xe000;
-
-    if (btndbc!=lastb) {
-        // printf("btndbc: %d / hex: %d\n" ,btndbc,HEX);
-    }
-    lastb = btndbc;
-
-    if (btndbc==0xf000) {
-        // draw_random_circles(tft);
-        printf("debounced action\n");
-    }
-}
-
 bool is_button_debounced(gpio_num_t debounce_pin) {
     static uint16_t btndbc = 0, lastb = 0;
     
@@ -102,6 +91,29 @@ bool is_button_debounced(gpio_num_t debounce_pin) {
     return false;
 }
 
+void encoder_status() {
+    // critical section
+    rotary_encoder_values.a_status = gpio_get_level(ROTARY_ENCODER_A);
+    rotary_encoder_values.b_status = gpio_get_level(ROTARY_ENCODER_B);
+
+    if (rotary_encoder_values.a_last_status == rotary_encoder_values.a_status && rotary_encoder_values.b_last_status == rotary_encoder_values.b_status) {
+        return ;
+    }
+
+    if ((rotary_encoder_values.a_status == 0 && rotary_encoder_values.a_last_status == 1) && rotary_encoder_values.b_status == 1) {
+        printf("clockwise status a\n");
+    }
+    else if ((rotary_encoder_values.a_status == 0 && rotary_encoder_values.a_last_status == 1) && rotary_encoder_values.b_status == 0) {
+        printf("anti clockwise status a\n");
+    }
+    
+    // critical section
+    rotary_encoder_values.a_last_status = rotary_encoder_values.a_status;
+    rotary_encoder_values.b_last_status = rotary_encoder_values.b_status;
+
+    return ;
+}
+
 static void IRAM_ATTR gpio_interrupt_handler(void *args)
 {
     int pinNumber = (int)args;
@@ -115,9 +127,10 @@ void rotary_encoder_task(void *params)
     {
         if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
         {
-            printf("\nGPIO %d was pressed %d times. The state is %d\n", pinNumber, count++, gpio_get_level(ROTARY_ENCODER_A));
-            printf("debounced encoder A: %d\n", gpio_get_level(ROTARY_ENCODER_A));
-            printf("debounced encoder B: %d\n", gpio_get_level(ROTARY_ENCODER_B));
+            //printf("\nGPIO %d was pressed %d times. The state is %d\n", pinNumber, count++, gpio_get_level(ROTARY_ENCODER_A));
+            //printf("debounced encoder A: %d\n", gpio_get_level(ROTARY_ENCODER_A));
+            //printf("debounced encoder B: %d\n", gpio_get_level(ROTARY_ENCODER_B));
+            encoder_status();
         }
     }
 }
@@ -152,7 +165,7 @@ void load_gpio() {
 
     gpio_install_isr_service(0);
     gpio_isr_handler_add(ROTARY_ENCODER_A, gpio_interrupt_handler, (void *)ROTARY_ENCODER_A);
-    gpio_isr_handler_add(ROTARY_ENCODER_B, gpio_interrupt_handler, (void *)ROTARY_ENCODER_B);
+    // gpio_isr_handler_add(ROTARY_ENCODER_B, gpio_interrupt_handler, (void *)ROTARY_ENCODER_B);
 }
 
 extern "C" void app_main()
@@ -164,7 +177,6 @@ extern "C" void app_main()
     load_gpio();
 
     while (1) {
-        // button_press_and_action(BUTTON_PRIMARY_PIN);
         if (is_button_debounced(BUTTON_PRIMARY_PIN)) {
             draw_random_circles(tft);
         }
