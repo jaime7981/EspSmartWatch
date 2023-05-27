@@ -7,7 +7,8 @@
 #include <iostream>
 #include <TFT_eSPI.h>
 
-#include "buttons.h"
+#include "gpio_inputs/button.h"
+#include "gpio_inputs/rotary_encoder.h"
 
 #define BUTTON_PRIMARY_PIN  GPIO_NUM_12
 #define BUTTON_SECONDARY_PIN  GPIO_NUM_14
@@ -50,7 +51,7 @@ void inputs_task(void *params)
                 printf("Encoder Counter -> %d\n\n", encoder_last_value);
             }
         }
-        vTaskDelay(50);
+        vTaskDelay(1);
     }
 }
 

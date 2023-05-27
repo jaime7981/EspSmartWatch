@@ -1,18 +1,7 @@
 #include "driver/gpio.h"
 
-#ifndef BUTTONS_H
-#define BUTTONS_H
-
-class Button {
-    private:
-        gpio_num_t gpio_input;
-
-    public:
-        Button(gpio_num_t button_gpio_input);
-
-        void setupGPIO();
-        bool isButtonDebounced();
-};
+#ifndef ROATARY_ENCODER_H
+#define ROATARY_ENCODER_H
 
 class RotaryEncoder {
     private:
@@ -30,6 +19,9 @@ class RotaryEncoder {
         void setupGPIO();
         void updateGPIOStatus();
         int encoderStatus();
+        bool isAOn();
+        bool clockwiseRotation();
+        bool anticlockwiseRotation();
 
         int getCounter()  { return counter; }
         void setCounter(int set_value) { counter = set_value; }
