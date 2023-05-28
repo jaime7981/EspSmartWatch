@@ -5,6 +5,8 @@
 #include "esp_pm.h"
 
 #include <iostream>
+#include <string>
+#include <vector>
 #include <TFT_eSPI.h>
 
 #include "gpio_inputs/button.h"
@@ -21,6 +23,15 @@ RotaryEncoder rotary_encoder = RotaryEncoder(ROTARY_ENCODER_A, ROTARY_ENCODER_B)
 Button primary_button = Button(BUTTON_PRIMARY_PIN);
 Button secondary_button = Button(BUTTON_SECONDARY_PIN);
 
+std::vector<String> menu_options{"start", "middle", "extra", "end"};
+int selected_option = 0;
+int x_menu_cursor = 0;
+int y_menu_cursor = 0;
+int MENU_RECT_H = 30;
+int MENU_RECT_W = 120;
+int MENU_RECT_SPACING = 10;
+int MENU_BORDER_RADIUS = 10;
+
 void draw_random_circles(TFT_eSPI &tft) {
     tft.fillScreen(TFT_BLACK);
 
@@ -32,6 +43,36 @@ void draw_random_circles(TFT_eSPI &tft) {
         int x = rx + random(320 - rx - rx);
         int y = ry + random(170 - ry - ry);
         tft.fillEllipse(x, y, rx, ry, random(0xFFFF));
+    }
+}
+
+void draw_menu() {
+    tft.fillScreen(TFT_BLACK);
+    selected_option = rotary_encoder.getCounter() % menu_options.size();
+    x_menu_cursor = MENU_RECT_SPACING;
+
+    for (int option = 0; option < menu_options.size(); option ++) {
+        y_menu_cursor = MENU_RECT_SPACING*2 + option*MENU_RECT_H;
+        
+        if (selected_option == option) {
+            tft.fillRoundRect(x_menu_cursor, 
+                              y_menu_cursor, 
+                              MENU_RECT_W, 
+                              MENU_RECT_H, 
+                              MENU_BORDER_RADIUS, 
+                              TFT_GREEN);
+        }
+        else {
+            tft.drawRoundRect(x_menu_cursor, 
+                              y_menu_cursor, 
+                              MENU_RECT_W, 
+                              MENU_RECT_H, 
+                              MENU_BORDER_RADIUS, 
+                              TFT_BROWN);
+        }
+        tft.drawString(menu_options[option], 
+                       x_menu_cursor + MENU_RECT_SPACING, 
+                       y_menu_cursor + MENU_RECT_H/2);
     }
 }
 
@@ -49,9 +90,10 @@ void inputs_task(void *params)
             if (encoder_last_value != rotary_encoder.getCounter()) {
                 encoder_last_value = rotary_encoder.getCounter();
                 printf("Encoder Counter -> %d\n\n", encoder_last_value);
+                draw_menu();
             }
         }
-        vTaskDelay(1);
+        vTaskDelay(5);
     }
 }
 
