@@ -1,87 +1,31 @@
 #include <stdio.h>
+#include <iostream>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_pm.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <TFT_eSPI.h>
-
 #include "gpio_inputs/button.h"
 #include "gpio_inputs/rotary_encoder.h"
+#include "watch_gui/watch_gui.h"
 
 #define BUTTON_PRIMARY_PIN  GPIO_NUM_12
 #define BUTTON_SECONDARY_PIN  GPIO_NUM_14
 #define ROTARY_ENCODER_A GPIO_NUM_25
 #define ROTARY_ENCODER_B GPIO_NUM_26
 
-TFT_eSPI tft = TFT_eSPI();
+WatchGUI watch_gui = WatchGUI();
 
 RotaryEncoder rotary_encoder = RotaryEncoder(ROTARY_ENCODER_A, ROTARY_ENCODER_B);
 Button primary_button = Button(BUTTON_PRIMARY_PIN);
 Button secondary_button = Button(BUTTON_SECONDARY_PIN);
-
-std::vector<String> menu_options{"start", "middle", "extra", "end"};
-int selected_option = 0;
-int x_menu_cursor = 0;
-int y_menu_cursor = 0;
-int MENU_RECT_H = 30;
-int MENU_RECT_W = 120;
-int MENU_RECT_SPACING = 10;
-int MENU_BORDER_RADIUS = 10;
-
-void draw_random_circles(TFT_eSPI &tft) {
-    tft.fillScreen(TFT_BLACK);
-
-    // Draw some random circles
-    for (int i = 0; i < 40; i++)
-    {
-        int rx = random(60);
-        int ry = random(60);
-        int x = rx + random(320 - rx - rx);
-        int y = ry + random(170 - ry - ry);
-        tft.fillEllipse(x, y, rx, ry, random(0xFFFF));
-    }
-}
-
-void draw_menu() {
-    tft.fillScreen(TFT_BLACK);
-    selected_option = rotary_encoder.getCounter() % menu_options.size();
-    x_menu_cursor = MENU_RECT_SPACING;
-
-    for (int option = 0; option < menu_options.size(); option ++) {
-        y_menu_cursor = MENU_RECT_SPACING*2 + option*MENU_RECT_H;
-        
-        if (selected_option == option) {
-            tft.fillRoundRect(x_menu_cursor, 
-                              y_menu_cursor, 
-                              MENU_RECT_W, 
-                              MENU_RECT_H, 
-                              MENU_BORDER_RADIUS, 
-                              TFT_GREEN);
-        }
-        else {
-            tft.drawRoundRect(x_menu_cursor, 
-                              y_menu_cursor, 
-                              MENU_RECT_W, 
-                              MENU_RECT_H, 
-                              MENU_BORDER_RADIUS, 
-                              TFT_BROWN);
-        }
-        tft.drawString(menu_options[option], 
-                       x_menu_cursor + MENU_RECT_SPACING, 
-                       y_menu_cursor + MENU_RECT_H/2);
-    }
-}
 
 void inputs_task(void *params)
 {
     int encoder_last_value = 0;
     while (1) {
         if (primary_button.isButtonDebounced()) {
-            draw_random_circles(tft);
+            watch_gui.drawRandomCircles();
         }
         else if(secondary_button.isButtonDebounced()) {
             rotary_encoder.setCounter(0);
@@ -90,18 +34,14 @@ void inputs_task(void *params)
             if (encoder_last_value != rotary_encoder.getCounter()) {
                 encoder_last_value = rotary_encoder.getCounter();
                 printf("Encoder Counter -> %d\n\n", encoder_last_value);
-                draw_menu();
+                watch_gui.drawSelectionMenu(encoder_last_value);
             }
         }
-        vTaskDelay(5);
+        vTaskDelay(1);
     }
 }
 
 extern "C" void app_main()
 {
-    tft.init();
-    tft.setRotation(1);
-    tft.fillScreen(TFT_BLACK);
-
     xTaskCreate(inputs_task, "INPUTS_TASK", 2048, NULL, 1, NULL);
 }
