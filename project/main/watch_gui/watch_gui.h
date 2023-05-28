@@ -15,7 +15,7 @@ class WatchGUI {
         int MENU_RECT_SPACING = 10;
         int MENU_BORDER_RADIUS = 10;
 
-        std::vector<String> menu_options;
+        std::vector<String> menu_options{"start", "middle", "extra", "end"};
         int selected_option;
         int x_menu_cursor;
         int y_menu_cursor;

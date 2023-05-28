@@ -63,7 +63,7 @@ bool RotaryEncoder::isAOn() {
 bool RotaryEncoder::clockwiseRotation() {
     if ((a_actual_status == 1 && a_last_status == 0) && b_actual_status == 0) {
         // A turns on and B is off
-        return true;
+        return false;
     }
     else if ((a_actual_status == 0 && a_last_status == 1) && b_actual_status == 1) {
         // A turns off and B is on
@@ -71,11 +71,11 @@ bool RotaryEncoder::clockwiseRotation() {
     }
     else if ((b_actual_status == 1 && b_last_status == 0) && a_actual_status == 1) {
         // B turns on and A is on
-        return false;
+        return true;
     }
     else if ((b_actual_status == 0 && b_last_status == 1) && a_actual_status == 0) {
         // B turns off and A is off
-        return true;
+        return false;
     }
 
     return false;
@@ -84,7 +84,7 @@ bool RotaryEncoder::clockwiseRotation() {
 bool RotaryEncoder::anticlockwiseRotation() {
     if ((a_actual_status == 1 && a_last_status == 0) && b_actual_status == 1) {
         // A turns on and B is on
-        return true;
+        return false;
     }
     else if ((a_actual_status == 0 && a_last_status == 1) && b_actual_status == 0) {
         // A turns off and B is off

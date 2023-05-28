@@ -4,8 +4,7 @@ WatchGUI::WatchGUI() {
     tft.init();
     tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
-
-    std::vector<String> menu_options{"start", "middle", "extra", "end"};
+    
     selected_option = 0;
     x_menu_cursor = 0;
     y_menu_cursor = 0;
@@ -27,6 +26,10 @@ void WatchGUI::drawRandomCircles() {
 
 void WatchGUI::drawSelectionMenu(int encoder_value) {
     tft.fillScreen(TFT_BLACK);
+    if (menu_options.size() == 0) {
+        return ;
+    }
+
     selected_option = encoder_value % menu_options.size();
     x_menu_cursor = MENU_RECT_SPACING;
 
