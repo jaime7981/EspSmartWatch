@@ -19,7 +19,6 @@ class RotaryEncoder {
         void setupGPIO();
         void updateGPIOStatus();
         int encoderStatus();
-        bool isAOn();
         bool clockwiseRotation();
         bool anticlockwiseRotation();
 

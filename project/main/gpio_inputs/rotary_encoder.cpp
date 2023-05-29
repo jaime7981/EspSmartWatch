@@ -50,16 +50,6 @@ int RotaryEncoder::encoderStatus() {
     return 1;
 }
 
-bool RotaryEncoder::isAOn() {
-    if (a_actual_status == 1 && a_last_status == 0) {
-        // A is on
-        return true;
-    }
-    
-    // A is off
-    return false;
-}
-
 bool RotaryEncoder::clockwiseRotation() {
     if ((a_actual_status == 1 && a_last_status == 0) && b_actual_status == 0) {
         // A turns on and B is off
