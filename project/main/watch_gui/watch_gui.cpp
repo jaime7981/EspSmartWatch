@@ -80,7 +80,7 @@ void WatchGUI::drawSelectionMenu(int encoder_value) {
                               MENU_BORDER_RADIUS, 
                               TFT_BROWN);
         }
-        tft.drawString(view_options[option], 
+        tft.drawString(view_options[option].getName(), 
                        x_menu_cursor + MENU_RECT_SPACING, 
                        y_menu_cursor + MENU_RECT_H/2);
     }

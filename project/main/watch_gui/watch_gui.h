@@ -2,6 +2,7 @@
 #include <string>
 #include <TFT_eSPI.h>
 #include "view.h"
+#include "option.h"
 
 #ifndef WATCH_GUI_H
 #define WATCH_GUI_H
@@ -16,7 +17,7 @@ class WatchGUI {
         int MENU_BORDER_RADIUS = 10;
 
         std::vector<View> views{};
-        std::vector<String> view_options{};
+        std::vector<Option> view_options{};
         View actual_view;
 
         int selected_option;

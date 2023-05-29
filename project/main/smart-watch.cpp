@@ -33,7 +33,7 @@ void inputs_task(void *params)
         }
         else if(secondary_button.isButtonDebounced()) {
             rotary_encoder.setCounter(0);
-            watch_gui.pushView(View({"start", "middle", "end", "back"}));
+            watch_gui.pushView(View({Option("start"), Option("middle"), Option("end"), Option("back")}));
             watch_gui.drawSelectionMenu(rotary_encoder.getCounter());
         }
         else if(rotary_encoder.encoderStatus()) {
