@@ -54,18 +54,13 @@ void WatchGUI::drawRandomCircles() {
 void WatchGUI::drawSelectionMenu(int encoder_value) {
     tft.fillScreen(TFT_BLACK);
 
-    if (view_options.size() <= 0) {
-        return ;
-    }
-
-    selected_option = encoder_value % view_options.size();
-    x_menu_cursor = MENU_RECT_SPACING;
+    selected_option = actual_view.getSelectedOptionCounter(encoder_value);
 
     for (int option = 0; option < view_options.size(); option ++) {
         y_menu_cursor = MENU_RECT_SPACING*2 + option*MENU_RECT_H;
         
         if (selected_option == option) {
-            tft.fillRoundRect(x_menu_cursor, 
+            tft.fillRoundRect(MENU_RECT_SPACING, 
                               y_menu_cursor, 
                               MENU_RECT_W, 
                               MENU_RECT_H, 
@@ -73,7 +68,7 @@ void WatchGUI::drawSelectionMenu(int encoder_value) {
                               TFT_GREEN);
         }
         else {
-            tft.drawRoundRect(x_menu_cursor, 
+            tft.drawRoundRect(MENU_RECT_SPACING, 
                               y_menu_cursor, 
                               MENU_RECT_W, 
                               MENU_RECT_H, 
@@ -81,7 +76,7 @@ void WatchGUI::drawSelectionMenu(int encoder_value) {
                               TFT_BROWN);
         }
         tft.drawString(view_options[option].getName(), 
-                       x_menu_cursor + MENU_RECT_SPACING, 
+                       MENU_RECT_SPACING*2, 
                        y_menu_cursor + MENU_RECT_H/2);
     }
 }
