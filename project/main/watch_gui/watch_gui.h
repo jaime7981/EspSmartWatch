@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 #include <TFT_eSPI.h>
-#include "driver/gpio.h"
+#include "view.h"
 
 #ifndef WATCH_GUI_H
 #define WATCH_GUI_H
@@ -15,7 +15,10 @@ class WatchGUI {
         int MENU_RECT_SPACING = 10;
         int MENU_BORDER_RADIUS = 10;
 
-        std::vector<String> menu_options{"start", "middle", "extra", "end"};
+        std::vector<View> views{};
+        std::vector<String> view_options{};
+        View actual_view;
+
         int selected_option;
         int x_menu_cursor;
         int y_menu_cursor;
@@ -23,6 +26,11 @@ class WatchGUI {
     public:
         WatchGUI();
 
+        View getLastView();
+        void updateView();
+        void pushView(View new_view);
+        void popView();
+        
         void drawRandomCircles();
         void drawSelectionMenu(int encoder_value);
 };

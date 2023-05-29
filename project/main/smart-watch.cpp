@@ -8,6 +8,7 @@
 #include "gpio_inputs/button.h"
 #include "gpio_inputs/rotary_encoder.h"
 #include "watch_gui/watch_gui.h"
+#include "watch_gui/view.h"
 
 #define BUTTON_PRIMARY_PIN  GPIO_NUM_12
 #define BUTTON_SECONDARY_PIN  GPIO_NUM_14
@@ -25,10 +26,15 @@ void inputs_task(void *params)
     int encoder_last_value = 0;
     while (1) {
         if (primary_button.isButtonDebounced()) {
-            watch_gui.drawRandomCircles();
+            // watch_gui.drawRandomCircles();
+            rotary_encoder.setCounter(0);
+            watch_gui.popView();
+            watch_gui.drawSelectionMenu(rotary_encoder.getCounter());
         }
         else if(secondary_button.isButtonDebounced()) {
             rotary_encoder.setCounter(0);
+            watch_gui.pushView(View({"start", "middle", "end", "back"}));
+            watch_gui.drawSelectionMenu(rotary_encoder.getCounter());
         }
         else if(rotary_encoder.encoderStatus()) {
             if (encoder_last_value != rotary_encoder.getCounter()) {
