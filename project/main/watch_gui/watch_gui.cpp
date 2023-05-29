@@ -1,14 +1,13 @@
 #include "watch_gui.h"
 
 WatchGUI::WatchGUI() {
+    x_menu_cursor = 0;
+    y_menu_cursor = 0;
+
     tft.init();
     tft.setRotation(1);
 
     updateView();
-    
-    selected_option = 0;
-    x_menu_cursor = 0;
-    y_menu_cursor = 0;
 }
 
 View WatchGUI::getLastView() {
@@ -37,6 +36,14 @@ void WatchGUI::popView() {
     updateView();
 }
 
+void WatchGUI::executeSelectedAction(int encoder_value) {
+    if (view_options.size() <= 0) {
+        return ;
+    }
+
+    view_options[actual_view.getSelectedOptionCounter(encoder_value)].executeAction();
+}
+
 void WatchGUI::drawRandomCircles() {
     tft.fillScreen(TFT_BLACK);
 
@@ -54,12 +61,10 @@ void WatchGUI::drawRandomCircles() {
 void WatchGUI::drawSelectionMenu(int encoder_value) {
     tft.fillScreen(TFT_BLACK);
 
-    selected_option = actual_view.getSelectedOptionCounter(encoder_value);
-
     for (int option = 0; option < view_options.size(); option ++) {
         y_menu_cursor = MENU_RECT_SPACING*2 + option*MENU_RECT_H;
         
-        if (selected_option == option) {
+        if (actual_view.getSelectedOptionCounter(encoder_value) == option) {
             tft.fillRoundRect(MENU_RECT_SPACING, 
                               y_menu_cursor, 
                               MENU_RECT_W, 

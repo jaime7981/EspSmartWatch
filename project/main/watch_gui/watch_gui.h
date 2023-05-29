@@ -31,6 +31,7 @@ class WatchGUI {
         void updateView();
         void pushView(View new_view);
         void popView();
+        void executeSelectedAction(int encoder_value);
         
         void drawRandomCircles();
         void drawSelectionMenu(int encoder_value);
