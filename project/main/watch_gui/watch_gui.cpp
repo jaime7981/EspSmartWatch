@@ -1,6 +1,7 @@
 #include "watch_gui.h"
 
 WatchGUI::WatchGUI() {
+    selected_option = 0;
     x_menu_cursor = 0;
     y_menu_cursor = 0;
 
@@ -21,6 +22,7 @@ View WatchGUI::getLastView() {
 void WatchGUI::updateView() {
     actual_view = getLastView();
     view_options = actual_view.getViewOptions();
+    drawSelectionMenu();
 }
 
 void WatchGUI::pushView(View new_view) { 
@@ -32,16 +34,17 @@ void WatchGUI::popView() {
     if (views.size() <= 0) {
         return ;
     }
+    selected_option = 0;
     views.pop_back(); 
     updateView();
 }
 
-void WatchGUI::executeSelectedAction(int encoder_value) {
+void WatchGUI::executeSelectedAction() {
     if (view_options.size() <= 0) {
         return ;
     }
 
-    view_options[actual_view.getSelectedOptionCounter(encoder_value)].executeAction();
+    view_options[actual_view.getSelectedOptionCounter(selected_option)].executeAction();
 }
 
 void WatchGUI::drawRandomCircles() {
@@ -58,13 +61,13 @@ void WatchGUI::drawRandomCircles() {
     }
 }
 
-void WatchGUI::drawSelectionMenu(int encoder_value) {
+void WatchGUI::drawSelectionMenu() {
     tft.fillScreen(TFT_BLACK);
 
     for (int option = 0; option < view_options.size(); option ++) {
         y_menu_cursor = MENU_RECT_SPACING*2 + option*MENU_RECT_H;
         
-        if (actual_view.getSelectedOptionCounter(encoder_value) == option) {
+        if (actual_view.getSelectedOptionCounter(selected_option) == option) {
             tft.fillRoundRect(MENU_RECT_SPACING, 
                               y_menu_cursor, 
                               MENU_RECT_W, 
@@ -84,4 +87,9 @@ void WatchGUI::drawSelectionMenu(int encoder_value) {
                        MENU_RECT_SPACING*2, 
                        y_menu_cursor + MENU_RECT_H/2);
     }
+}
+
+void WatchGUI::setSelectedOption(int new_selected_option) {
+    selected_option = new_selected_option;
+    drawSelectionMenu();
 }

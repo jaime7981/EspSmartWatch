@@ -31,10 +31,13 @@ class WatchGUI {
         void updateView();
         void pushView(View new_view);
         void popView();
-        void executeSelectedAction(int encoder_value);
+        void executeSelectedAction();
         
         void drawRandomCircles();
-        void drawSelectionMenu(int encoder_value);
+        void drawSelectionMenu();
+
+        int getSelectedOption() { return selected_option; };
+        void setSelectedOption(int new_selected_option);
 };
 
 #endif

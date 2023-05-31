@@ -7,9 +7,10 @@
 
 class View {
     private:
-        String name = "Default ViewName";
-        std::vector<Option> view_options{Option("no_options")};
+        String name;
+        std::vector<Option> view_options;
         int selected_option;
+        void (*draw_view)() { nullptr };
 
     public:
         View();
@@ -19,6 +20,9 @@ class View {
 
         std::vector<Option> getViewOptions() { return view_options; };
         void setViewOptions(std::vector<Option> new_view_options) { view_options = new_view_options; };
+        
+        void drawView() { draw_view(); };
+        void setView(void (*new_draw_view)()) { draw_view = new_draw_view; };
 };
 
 #endif

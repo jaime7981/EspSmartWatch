@@ -37,21 +37,18 @@ void inputs_task(void *params)
     first_loaded_menu();
     while (1) {
         if (primary_button.isButtonDebounced()) {
-            // watch_gui.drawRandomCircles();
             rotary_encoder.setCounter(0);
             watch_gui.popView();
-            watch_gui.drawSelectionMenu(rotary_encoder.getCounter());
         }
         else if(secondary_button.isButtonDebounced()) {
-            watch_gui.executeSelectedAction(rotary_encoder.getCounter());
+            watch_gui.executeSelectedAction();
             rotary_encoder.setCounter(0);
-            watch_gui.drawSelectionMenu(rotary_encoder.getCounter());
         }
         else if(rotary_encoder.encoderStatus()) {
             if (encoder_last_value != rotary_encoder.getCounter()) {
+                watch_gui.setSelectedOption(rotary_encoder.getCounter());
                 encoder_last_value = rotary_encoder.getCounter();
                 printf("Encoder Counter -> %d\n\n", encoder_last_value);
-                watch_gui.drawSelectionMenu(encoder_last_value);
             }
         }
         vTaskDelay(1);
