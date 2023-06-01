@@ -4,6 +4,10 @@ void View::addOption(Option new_option) {
     view_options.push_back(new_option);
 }
 
+void View::cleanOptions() {
+    view_options.clear();
+}
+
 int View::getSelectedOptionCounter(int encoder_value) {
     if (view_options.size() <= 0) {
         selected_option = 0;

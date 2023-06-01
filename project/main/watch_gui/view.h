@@ -14,6 +14,7 @@ class View {
 
     public:
         void addOption(Option new_option);
+        void cleanOptions();
         int getSelectedOptionCounter(int encoder_value);
         virtual void drawView() = 0;
 
