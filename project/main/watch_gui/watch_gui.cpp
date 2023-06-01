@@ -13,7 +13,7 @@ WatchGUI::WatchGUI() {
 
 View WatchGUI::getLastView() {
     if (views.size() <= 0) {
-        return View();
+        return defaultView();
     }
 
     return views.back();
@@ -21,8 +21,7 @@ View WatchGUI::getLastView() {
 
 void WatchGUI::updateView() {
     actual_view = getLastView();
-    view_options = actual_view.getViewOptions();
-    drawSelectionMenu();
+    actual_view.drawView();
 }
 
 void WatchGUI::pushView(View new_view) { 
@@ -40,11 +39,19 @@ void WatchGUI::popView() {
 }
 
 void WatchGUI::executeSelectedAction() {
-    if (view_options.size() <= 0) {
+    if (actual_view.getViewOptions().size() <= 0) {
         return ;
     }
 
-    view_options[actual_view.getSelectedOptionCounter(selected_option)].executeAction();
+    actual_view.getViewOptions()[actual_view.getSelectedOptionCounter(selected_option)].executeAction();
+}
+
+View WatchGUI::defaultView() {
+    View defaultView = View(&tft);
+    Option default_first_option = Option("firstOption");
+    defaultView.addOption(default_first_option);
+    // pushView(defaultView);
+    return defaultView;
 }
 
 void WatchGUI::drawRandomCircles() {
@@ -61,35 +68,7 @@ void WatchGUI::drawRandomCircles() {
     }
 }
 
-void WatchGUI::drawSelectionMenu() {
-    tft.fillScreen(TFT_BLACK);
-
-    for (int option = 0; option < view_options.size(); option ++) {
-        y_menu_cursor = MENU_RECT_SPACING*2 + option*MENU_RECT_H;
-        
-        if (actual_view.getSelectedOptionCounter(selected_option) == option) {
-            tft.fillRoundRect(MENU_RECT_SPACING, 
-                              y_menu_cursor, 
-                              MENU_RECT_W, 
-                              MENU_RECT_H, 
-                              MENU_BORDER_RADIUS, 
-                              TFT_GREEN);
-        }
-        else {
-            tft.drawRoundRect(MENU_RECT_SPACING, 
-                              y_menu_cursor, 
-                              MENU_RECT_W, 
-                              MENU_RECT_H, 
-                              MENU_BORDER_RADIUS, 
-                              TFT_BROWN);
-        }
-        tft.drawString(view_options[option].getName(), 
-                       MENU_RECT_SPACING*2, 
-                       y_menu_cursor + MENU_RECT_H/2);
-    }
-}
-
 void WatchGUI::setSelectedOption(int new_selected_option) {
     selected_option = new_selected_option;
-    drawSelectionMenu();
+    actual_view.drawView();
 }

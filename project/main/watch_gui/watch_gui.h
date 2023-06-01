@@ -17,7 +17,6 @@ class WatchGUI {
         int MENU_BORDER_RADIUS = 10;
 
         std::vector<View> views{};
-        std::vector<Option> view_options{};
         View actual_view;
 
         int selected_option;
@@ -32,6 +31,8 @@ class WatchGUI {
         void pushView(View new_view);
         void popView();
         void executeSelectedAction();
+
+        View defaultView();
         
         void drawRandomCircles();
         void drawSelectionMenu();
