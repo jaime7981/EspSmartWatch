@@ -3,6 +3,7 @@
 #include <TFT_eSPI.h>
 #include "view.h"
 #include "option.h"
+#include "menu_view.h"
 
 #ifndef WATCH_GUI_H
 #define WATCH_GUI_H
@@ -16,8 +17,8 @@ class WatchGUI {
         int MENU_RECT_SPACING = 10;
         int MENU_BORDER_RADIUS = 10;
 
-        std::vector<View> views{};
-        View actual_view;
+        std::vector<MenuView> views{};
+        MenuView actual_view;
 
         int selected_option;
         int x_menu_cursor;
@@ -26,16 +27,13 @@ class WatchGUI {
     public:
         WatchGUI();
 
-        View getLastView();
+        MenuView getLastView();
         void updateView();
-        void pushView(View new_view);
+        void pushView(MenuView new_view);
         void popView();
         void executeSelectedAction();
 
-        View defaultView();
-        
-        void drawRandomCircles();
-        void drawSelectionMenu();
+        MenuView defaultView();
 
         int getSelectedOption() { return selected_option; };
         void setSelectedOption(int new_selected_option);

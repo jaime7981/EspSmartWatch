@@ -11,7 +11,7 @@ WatchGUI::WatchGUI() {
     updateView();
 }
 
-View WatchGUI::getLastView() {
+MenuView WatchGUI::getLastView() {
     if (views.size() <= 0) {
         return defaultView();
     }
@@ -24,7 +24,7 @@ void WatchGUI::updateView() {
     actual_view.drawView();
 }
 
-void WatchGUI::pushView(View new_view) { 
+void WatchGUI::pushView(MenuView new_view) { 
     views.push_back(new_view);
     updateView();
 }
@@ -46,26 +46,10 @@ void WatchGUI::executeSelectedAction() {
     actual_view.getViewOptions()[actual_view.getSelectedOptionCounter(selected_option)].executeAction();
 }
 
-View WatchGUI::defaultView() {
-    View defaultView = View(&tft);
-    Option default_first_option = Option("firstOption");
-    defaultView.addOption(default_first_option);
-    // pushView(defaultView);
+MenuView WatchGUI::defaultView() {
+    MenuView defaultView = MenuView(&tft, &selected_option);
+    defaultView.addOption(Option("test(NOT_IMP)"));
     return defaultView;
-}
-
-void WatchGUI::drawRandomCircles() {
-    tft.fillScreen(TFT_BLACK);
-
-    // Draw some random circles
-    for (int i = 0; i < 40; i++)
-    {
-        int rx = random(60);
-        int ry = random(60);
-        int x = rx + random(320 - rx - rx);
-        int y = ry + random(170 - ry - ry);
-        tft.fillEllipse(x, y, rx, ry, random(0xFFFF));
-    }
 }
 
 void WatchGUI::setSelectedOption(int new_selected_option) {

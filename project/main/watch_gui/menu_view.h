@@ -16,9 +16,10 @@ class MenuView : public View {
 
     public:
         MenuView();
-        MenuView(std::vector<Option> new_view_options);
+        MenuView(TFT_eSPI* new_tft_pointer, int* new_selected_option);
+        MenuView(TFT_eSPI* new_tft_pointer, int* new_selected_option, std::vector<Option> new_view_options);
 
-        void drawView();
+        void drawView() override;
 };
 
 #endif
