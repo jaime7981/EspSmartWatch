@@ -8,6 +8,7 @@ WatchGUI::WatchGUI() {
     tft.init();
     tft.setRotation(1);
 
+    setDefaultView(createMenuView());
     updateView();
 }
 
@@ -38,6 +39,11 @@ void WatchGUI::popView() {
     updateView();
 }
 
+MenuView WatchGUI::createMenuView() {
+    MenuView new_menu_view = MenuView(&tft, &selected_option);
+    return new_menu_view;
+}
+
 void WatchGUI::executeSelectedAction() {
     if (actual_view.getViewOptions().size() <= 0) {
         return ;
@@ -47,9 +53,12 @@ void WatchGUI::executeSelectedAction() {
 }
 
 MenuView WatchGUI::defaultView() {
-    MenuView defaultView = MenuView(&tft, &selected_option);
-    defaultView.addOption(Option("test(NOT_IMP)"));
-    return defaultView;
+    return default_view;
+}
+
+void WatchGUI::setDefaultView(MenuView new_default_view) {
+    default_view = new_default_view;
+    updateView();
 }
 
 void WatchGUI::setSelectedOption(int new_selected_option) {

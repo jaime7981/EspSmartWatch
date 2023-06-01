@@ -19,6 +19,7 @@ class WatchGUI {
 
         std::vector<MenuView> views{};
         MenuView actual_view;
+        MenuView default_view;
 
         int selected_option;
         int x_menu_cursor;
@@ -31,9 +32,11 @@ class WatchGUI {
         void updateView();
         void pushView(MenuView new_view);
         void popView();
+        MenuView createMenuView();
         void executeSelectedAction();
 
         MenuView defaultView();
+        void setDefaultView(MenuView new_default_view);
 
         int getSelectedOption() { return selected_option; };
         void setSelectedOption(int new_selected_option);

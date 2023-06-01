@@ -21,9 +21,38 @@ RotaryEncoder rotary_encoder = RotaryEncoder(ROTARY_ENCODER_A, ROTARY_ENCODER_B)
 Button primary_button = Button(BUTTON_PRIMARY_PIN);
 Button secondary_button = Button(BUTTON_SECONDARY_PIN);
 
+void second_action() {
+    printf("second_action");
+}
+
+MenuView second_menu() {
+    MenuView new_menu_view = watch_gui.createMenuView();
+    new_menu_view.cleanOptions();
+    Option new_option("no more actions ahead");
+    new_option.setAction(&second_action);
+    new_menu_view.addOption(new_option);
+    return new_menu_view;
+}
+
+void new_action() {
+    printf("test_action");
+    watch_gui.pushView(second_menu());
+}
+
+MenuView first_menu() {
+    MenuView new_menu_view = watch_gui.createMenuView();
+    new_menu_view.cleanOptions();
+    Option new_option("to_second_menu");
+    new_option.setAction(&new_action);
+    new_menu_view.addOption(new_option);
+    return new_menu_view;
+}
+
 void inputs_task(void *params)
 {
     int encoder_last_value = 0;
+    watch_gui.setDefaultView(first_menu());
+    // watch_gui.pushView(first_menu());
     while (1) {
         if (primary_button.isButtonDebounced()) {
             rotary_encoder.setCounter(0);
